@@ -1,11 +1,8 @@
 <?php
 
-
+require_once '_inc/functions.php';
 
 if(isset($_POST['submit'])){
-
-processContactForm();
-
 [
     'firstname' => $firstname,
     'lastname' => $lastname,
@@ -20,9 +17,11 @@ $dateSubmit = new DateTime;
 date_timestamp_set($dateSubmit, $submissionDate);
 }
 
-require_once '_inc/functions.php';
 require_once '_inc/header.php';
 require_once '_inc/nav.php';
+
+processContactForm();
+
 
 ?>
 
@@ -55,12 +54,18 @@ require_once '_inc/nav.php';
 <?php 
 
 if(isset($_POST['submit'])){
-echo "<p>firstname : $firstname</p>";
-echo "<p>lastnme : $lastname</p>";
-echo "<p>email : $email</p>";
-echo "<p>subject : $subject</p>";
-echo "<p>message : $message</p>";
-echo "<p>submit : ".$dateSubmit->format('Y-m-d H:i:s')."</p>";
+    if(getErrors() != null && count(getErrors()) != 0){
+        foreach ($errors as $key => $value) {
+            echo "<p>$value</p>";
+        }
+    }else {
+        echo "<p>firstname : $firstname</p>";
+        echo "<p>lastnme : $lastname</p>";
+        echo "<p>email : $email</p>";
+        echo "<p>subject : $subject</p>";
+        echo "<p>message : $message</p>";
+        echo "<p>submit : ".$dateSubmit->format('Y-m-d H:i:s')."</p>";
+    }
 }
 
 require_once '_inc/footer.php';

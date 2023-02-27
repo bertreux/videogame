@@ -11,6 +11,10 @@ require_once '_inc/nav.php';
 </main>
 
 <?php
+findAll();
+findOneBy(1);
+find3Rand();
+
 require_once '_inc/footer.php';
 ?>
     

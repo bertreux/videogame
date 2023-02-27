@@ -2,6 +2,8 @@
 
 require_once '_inc/functions.php';
 
+dbConnection();
+
 if(isset($_POST['submit'])){
 [
     'firstname' => $firstname,

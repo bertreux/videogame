@@ -6,6 +6,8 @@ require_once '../../_inc/functions.php';
 
 checkAuthentication();
 
+processGameForm();
+
 require_once '../../_inc/header.php';
 require_once '../_inc/nav.php';
 
@@ -21,7 +23,7 @@ require_once '../_inc/nav.php';
     </p>
     <p>
         <label>Description :</label>
-        <textarea name="description" value="<?= getValues()['description'] ?? null; ?>"></textarea>
+        <textarea name="description"><?= getValues()['description'] ?? null; ?></textarea>
     </p>
     <p>
         <label>Date de sortie :</label>
@@ -42,5 +44,14 @@ require_once '../_inc/nav.php';
 
 
 <?php
+
+if(isset($_POST['submit'])){
+    if(getErrors() != null && count(getErrors()) != 0){
+        foreach ($errors as $key => $value) {
+            echo "<p>$value</p>";
+        }
+    }
+}
+
 require_once '../../_inc/footer.php';
 ?>

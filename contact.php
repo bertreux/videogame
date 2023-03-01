@@ -45,7 +45,7 @@ processContactForm();
     </p>
     <p>
         <label>Message :</label>
-        <textarea name="message" value="<?= getValues()['message'] ?? null; ?>"></textarea>
+        <textarea name="message"><?= getValues()['message'] ?? null; ?></textarea>
     </p>
     <p>
         <input type="submit" name="submit">

@@ -11,6 +11,9 @@ $results = findAll();
 require_once '../../_inc/header.php';
 require_once '../_inc/nav.php';
 
+$message = getSessionFlashMessage('notice');
+echo $message;
+
 ?>
 
 <table>
@@ -33,8 +36,8 @@ require_once '../_inc/nav.php';
                     <td>{$value['price']}</td>
                     <td>$date</td>
                     <td>
-                        <a href='#'>Modifier</a>
-                        <a href='#'>Supprimer</a>
+                        <a href='form.php?id={$value['id']}'>Modifier</a>
+                        <a href='delete.php?id={$value['id']}'>Supprimer</a>
                     </td>
                 </tr>
             ";

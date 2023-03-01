@@ -23,7 +23,6 @@ function processLoginForm()
     }
 }
 
-
 /*
 
 lorsque le formulaire est valide :
@@ -32,6 +31,25 @@ si le formulaire est invalide :
 Dans la page login.php, appeler la fonction getSessionFlashMessage dans un paragraphe de la partie HTML
 
 */
+
+function processGameForm()
+{
+    if(isSubmitted() && isNewGameValid()){
+        //tester le parametre d'url id
+        if(isset($_GET['id'])){
+            updateGame(getValues());
+            $_SESSION['notice'] = 'Jeu vidéo modifié';
+        }else {
+            insertGame(getValues());
+            $_SESSION['notice'] = 'Jeu vidéo ajouté';
+        }
+        header('Location: http://localhost:8000/admin/games/');        
+    }
+
+    if(!isSubmitted() && isset($_GET['id'])){
+        $GLOBALS['formData'] = findOneBy($_GET['id']);
+    }
+}
 
 function getUserByLogin(string $login):array|bool
 {
@@ -72,6 +90,52 @@ function isLoginValid():bool
 
     return checkConstraints($constraints);
 }
+
+function isNewGameValid():bool
+{
+    $constraints = [
+        'title' => [
+            'isValidate' => isNotBlank(getValues()['title']),
+            'message' => 'Titre incorrect',
+        ],
+        'description' => [
+            'isValidate' => isNotBlank(getValues()['description']),
+            'message' => 'Description incorrect',
+        ],
+        'release_date' => [
+            'isValidate' => isNotBlank(getValues()['release_date']),
+            'message' => 'Date de sortie incorrect',
+        ],
+        'poster' => [
+            'isValidate' => isNotBlank(getValues()['poster']),
+            'message' => 'Poster incorrect',
+        ],
+        'price' => [
+            'isValidate' => isFloatInRange(getValues()['price'],0,999.99),
+            'message' => 'Prix incorrect',
+        ],
+    ];
+
+    $GLOBALS['errors']= [];
+    foreach($constraints as $name => $field){
+        if(!$field['isValidate']){
+            array_push($GLOBALS['errors'], $field['message']); $validation = false;
+        }
+    }
+
+    return checkConstraints($constraints);
+}
+
+function isFloatInRange(string $field, float $min, float $max)
+ {
+    if(filter_var($field, FILTER_VALIDATE_FLOAT)){
+        if($field >= $min && $field <= $max){
+            return true;
+        }
+    }
+
+    return false;
+ }
 
 function isSubmitted():bool
 {
@@ -152,7 +216,16 @@ function checkConstraints(array $constraints):bool
 
 function getValues():array
 {
-    return $_POST;
+    if(isset($GLOBALS['formData'])){
+        return $GLOBALS['formData'];
+    }else {
+        return $_POST;
+    }  
+}
+
+function getFilesValues():array
+{
+    return $_FILES;
 }
 
 function getErrors():array|null
@@ -223,6 +296,49 @@ function checkAuthentication()
         $_SESSION['notice'] = 'Accès refusé';
         header('Location: http://localhost:8000/');
     }
+}
+
+function insertGame(array $game)
+{
+    $connection = dbConnection();
+    $sql = 'INSERT INTO game ( title, description, release_date, poster, price ) VALUES ( :title, :description, :release_date, :poster, :price )';
+    $query = $connection->prepare($sql);
+    $query->execute([
+        'title' => $game['title'],
+        'description' => $game['description'],
+        'release_date' => $game['release_date'],
+        'poster' => $game['poster'],
+        'price' => $game['price'],
+    ]);
+}
+
+function updateGame(array $game)
+{
+    $connection = dbConnection();
+    $sql = 'UPDATE game SET title = :title, description = :description, release_date = :release_date, poster = :poster, price = :price WHERE id = :id';
+    $query = $connection->prepare($sql);
+    $query->execute([
+        'id' => $game['id'],
+        'title' => $game['title'],
+        'description' => $game['description'],
+        'release_date' => $game['release_date'],
+        'poster' => $game['poster'],
+        'price' => $game['price'],
+    ]);
+}
+
+function deleteGame()
+{
+    $id = $_GET['id'];
+
+    $connection = dbConnection();
+    $sql = 'DELETE FROM game WHERE id = :id';
+    $query = $connection->prepare($sql);
+    $query->execute([
+        'id' => $id
+    ]);
+    $_SESSION['notice'] = 'Jeu vidéo supprimé';
+    header('Location: http://localhost:8000/admin/games/');       
 }
 
 ?>

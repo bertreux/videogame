@@ -17,7 +17,8 @@ CREATE TABLE game (
   description TEXT NOT NULL,
   release_date DATE NOT NULL,
   poster VARCHAR(255) NOT NULL,
-  price DECIMAL(5,2) NOT NULL
+  price DECIMAL(5,2) NOT NULL,
+  editori_id
 );
 
 -- Ajouter des jeux vidéos
@@ -43,5 +44,22 @@ CREATE TABLE admin (
 );
 -- Ajouter un admin
 INSERT INTO admin (email, password) VALUES ('admin@gmail.com','$argon2i$v=19$m=16,t=2,p=1$MUdjZVBQRWpHQmtSdUc0SA$VhHjZkW9Fa7aDdGTWe/0Xg');
-
 -- mdp : azertyuiop
+
+-- Supprimer la table "editor" si elle existe déjà
+DROP TABLE IF EXISTS editor;
+
+-- Créer la table "editor"
+CREATE TABLE editor (
+    id TINYINT NOT NULL PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+-- Ajouter des éditeurs de jeux videos
+INSERT INTO editor (name) 
+VALUES
+  ('Electronic Arts'),
+  ('Ubisoft'),
+  ('Activision Blizzard'),
+  ('Bethesda Softworks'),
+  ('Square Enix');

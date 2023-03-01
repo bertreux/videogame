@@ -10,10 +10,9 @@ USE videogames;
 -- Supprimer la table "game" si elle existe déjà
 DROP TABLE IF EXISTS game;
 
-
 -- Créer la table "game"
 CREATE TABLE game (
-  id TINYINT NOT NULL PRIMARY KEY,
+  id TINYINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(255) NOT NULL,
   description TEXT NOT NULL,
   release_date DATE NOT NULL,
@@ -33,16 +32,16 @@ VALUES
   ("Assassin's Creed Valhalla", "Jeu d'action-aventure se déroulant dans l'univers des Vikings.", '2020-11-10', 'assassins_creed_valhalla.jpg', 59.99),
   ('Mario Kart 8 Deluxe', "Jeu de course de kart avec des personnages de l'univers de Mario.", '2017-04-28', 'mario_kart_8_deluxe.jpg', 59.99);
 
+-- Supprimer la table "admin" si elle existe déjà
+DROP TABLE IF EXISTS admin;
+
 -- Créer la table "admin"
 CREATE TABLE admin (
-  id TINYINT NOT NULL PRIMARY KEY,
-  email VARCHAR(50)NOT NULL UNIQUE,
-  password VARCHAR(150) NOT NULL
-)
-
+    id TINYINT NOT NULL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE,
+    password VARCHAR(255)
+);
 -- Ajouter un admin
-INSERT INTO admin (email, password)
-VALUES
-  ('admin@gmail.com','$argon2i$v=19$m=16,t=2,p=1$d092Q0Z6QnpnRHk5dEUxQw$bz2uiWsBNcVQrPZv11RYPA');
+INSERT INTO admin (email, password) VALUES ('admin@gmail.com','$argon2i$v=19$m=16,t=2,p=1$MUdjZVBQRWpHQmtSdUc0SA$VhHjZkW9Fa7aDdGTWe/0Xg');
 
-  --mdp : azerty
+-- mdp : azertyuiop

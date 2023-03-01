@@ -1,10 +1,17 @@
 <?php
+
+session_start();
+
 require_once '_inc/functions.php';
 
 $results = find3Rand();
 
 require_once '_inc/header.php';
 require_once '_inc/nav.php';
+
+ $message = getSessionFlashMessage('notice');
+ echo $message;
+
 ?>
 
 <main>

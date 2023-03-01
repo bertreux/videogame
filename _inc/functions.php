@@ -3,8 +3,74 @@
 function processContactForm()
 {
     if(isSubmitted() && isValid()){
-        echo 'formulaire soumis et valide';
+        $_SESSION['notice'] = 'Vous serez contacté dans les plus brefs délais';
+        header('Location: http://localhost:8000/');
     }
+}
+
+function processLoginForm()
+{
+    if(isSubmitted() && isLoginValid()){
+        if(checkUser(getValues()['email'],getValues()['password'])){
+            echo 'utilisateur authentifié';
+            $_SESSION['user'] = getValues()['email'];
+            header('Location: http://localhost:8000/');
+        } else {
+            echo 'utilisateur non authentifié';
+        }
+    } else {
+        $_SESSION['notice'] = 'Identifiants incorrects';
+    }
+}
+
+
+/*
+
+lorsque le formulaire est valide :
+créer une entrée nommée user dans la session stockant l'identifiant de l'administrateur connecté, en utilisant la fonction permettant de vérifier l'existence d'un administrateur à l'aide de son email
+si le formulaire est invalide :
+Dans la page login.php, appeler la fonction getSessionFlashMessage dans un paragraphe de la partie HTML
+
+*/
+
+function getUserByLogin(string $login):array|bool
+{
+    $connection = dbConnection();
+    $sql = 'SELECT email, password FROM admin WHERE email = :login';
+    $query = $connection->prepare($sql);
+    $query->execute([
+        'login' => $login,
+    ]);
+    return $query->fetch() ?? false;
+}
+
+function checkUser(string $email, string $password):bool
+{
+    if(!getUserByLogin($email)){
+        return false;
+    }
+
+    if(!password_verify($password,getUserByLogin($email)['password'],)){
+        return false;
+    }
+
+    return true;
+}
+
+function isLoginValid():bool
+{
+    $constraints = [
+        'email' => [
+            'isValidate' => isEmail(getValues()['email']),
+            'message' => 'Email incorrect',
+        ],
+        'password' => [
+            'isValidate' => isLong(getValues()['password'], 8),
+            'message' => 'Mot de passe incorrect',
+        ],
+    ];
+
+    return checkConstraints($constraints);
 }
 
 function isSubmitted():bool
@@ -32,7 +98,7 @@ function isValid():bool
             'message' => 'Subject incorrect',
         ],
         'message' => [
-            'isValidate' => isNotBlank(getValues()['message']) && isLong(getValues()['message']),
+            'isValidate' => isNotBlank(getValues()['message']) && isLong(getValues()['message'],10),
             'message' => 'Message incorrect',
         ],    
     ];
@@ -58,7 +124,7 @@ function isNotBlank(string|null|array $field):bool
     return !empty($field);
 }
 
-function isEmail($field):bool
+function isEmail(string $field):bool
 {
     if(filter_var($field, FILTER_VALIDATE_EMAIL)){
         return true;
@@ -67,9 +133,9 @@ function isEmail($field):bool
     }
 }
 
-function isLong($field):bool
+function isLong(string $field, int $lenght):bool
 {
-    return strlen($field) >= 10 ? true : false;
+    return strlen($field) >= $lenght ? true : false;
 }
 
 function checkConstraints(array $constraints):bool
@@ -127,6 +193,26 @@ function findOneBy(int $id)
         'id' => $id,
     ]);
     return $query->fetch();    
+}
+
+function getSessionFlashMessage(string $sessionKey)
+{
+    if(array_key_exists($sessionKey, $_SESSION)){
+        $notice = $_SESSION[$sessionKey];
+        unset($_SESSION[$sessionKey]);
+        return $notice;
+    }else {
+        return null;
+    }
+}
+
+function getSessionData(string $sessionKey)
+{
+    if(array_key_exists($sessionKey, $_SESSION)){
+        return $_SESSION[$sessionKey];
+    }else {
+        return null;
+    }
 }
 
 ?>

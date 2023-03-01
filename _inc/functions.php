@@ -107,17 +107,6 @@ function find3Rand()
     $query = $connection->prepare($sql);
     $query->execute();
     return $query->fetchAll();
-
-    // $results = $query->fetchAll();
-    // // Parcourir les lignes de résultats et afficher les valeurs de chaque colonne
-    // foreach($results as $row) {
-    //     echo "ID: " . $row["id"] . "<br>";
-    //     echo "Titre: " . $row["title"] . "<br>";
-    //     echo "Description: " . $row["description"] . "<br>";
-    //     echo "Date de sortie: " . $row["release_date"] . "<br>";
-    //     echo "Affiche: " . $row["poster"] . "<br>";
-    //     echo "Prix: " . $row["price"] . "<br><br>";
-    // }
 }
 
 function findAll()
@@ -127,17 +116,6 @@ function findAll()
     $query = $connection->prepare($sql);
     $query->execute();
     return $query->fetchAll();
-
-    // $results = $query->fetchAll();
-    // // Parcourir les lignes de résultats et afficher les valeurs de chaque colonne
-    // foreach($results as $row) {
-    //     echo "ID: " . $row["id"] . "<br>";
-    //     echo "Titre: " . $row["title"] . "<br>";
-    //     echo "Description: " . $row["description"] . "<br>";
-    //     echo "Date de sortie: " . $row["release_date"] . "<br>";
-    //     echo "Affiche: " . $row["poster"] . "<br>";
-    //     echo "Prix: " . $row["price"] . "<br><br>";
-    // }
 }
 
 function findOneBy(int $id)
@@ -148,17 +126,7 @@ function findOneBy(int $id)
     $query->execute([
         'id' => $id,
     ]);
-    return $query->fetch();
-
-    // $results = $query->fetch();
-    // // Parcourir la ligne de résultat et afficher la valeur de chaque colonne
-    // echo "ID: " . $results["id"] . "<br>";
-    // echo "Titre: " . $results["title"] . "<br>";
-    // echo "Description: " . $results["description"] . "<br>";
-    // echo "Date de sortie: " . $results["release_date"] . "<br>";
-    // echo "Affiche: " . $results["poster"] . "<br>";
-    // echo "Prix: " . $results["price"] . "<br><br>";
-    
+    return $query->fetch();    
 }
 
 ?>

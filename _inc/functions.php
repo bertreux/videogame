@@ -14,7 +14,7 @@ function processLoginForm()
         if(checkUser(getValues()['email'],getValues()['password'])){
             echo 'utilisateur authentifié';
             $_SESSION['user'] = getValues()['email'];
-            header('Location: http://localhost:8000/');
+            header('Location: http://localhost:8000/admin/');
         } else {
             echo 'utilisateur non authentifié';
         }
@@ -212,6 +212,16 @@ function getSessionData(string $sessionKey)
         return $_SESSION[$sessionKey];
     }else {
         return null;
+    }
+}
+
+function checkAuthentication()
+{
+    if(array_key_exists('user', $_SESSION)){
+
+    } else {
+        $_SESSION['notice'] = 'Accès refusé';
+        header('Location: http://localhost:8000/');
     }
 }
 

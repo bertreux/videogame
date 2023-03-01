@@ -10,6 +10,7 @@ echo $user;
     <?php if ($user == null){ ?>
     <a href="/login.php">Login</a>
     <?php } else { ?>
+    <a href="/admin/">Admin</a>
     <a href="/logout.php">Logout</a>
     <?php } ?>
 </nav>

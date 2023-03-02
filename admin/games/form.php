@@ -6,6 +6,9 @@ require_once '../../_inc/functions.php';
 
 checkAuthentication();
 
+$editor = findAllEditor();
+$results = findAllCategory();
+
 processGameForm();
 
 require_once '../../_inc/header.php';
@@ -13,7 +16,7 @@ require_once '../_inc/nav.php';
 
 ?>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     <p>
         <input type="hidden" name="id" value="<?= getValues()['id'] ?? null; ?>">
     </p>
@@ -31,11 +34,42 @@ require_once '../_inc/nav.php';
     </p>
     <p>
         <label>Poster :</label>
-        <input type="text" name="poster" value="<?= getValues()['poster'] ?? null; ?>">
+        <input type="file" name="poster" <?php empty(getValues()['id']) ? 'required' : null; ?>>
     </p>
     <p>
         <label>Prix :</label>
         <input type="text" name="price" value="<?= getValues()['price'] ?? null; ?>">
+    </p>
+    <p>
+        <label>Editeur :</label>
+        <select name="editor_id">
+            <option value=""></option>
+            <?php
+                $html = '';
+                foreach($editor as $key => $value){
+                    $html .= "<option value='{$value['id']}'";
+                    $html .= isset(getValues()['editor_id']) && getValues()['editor_id'] == $value['id'] ? ' selected' : null;
+                    $html .= ">{$value['name']}</option>";
+                }
+                echo $html;
+            ?>
+        </select>
+    </p>
+    <p>
+        <?php
+
+            $categoryList = isset(getValues()['category_ids']) ? 
+            is_array(getValues()['category_ids']) ? 
+            getValues()['category_ids'] : explode(',',getValues()['category_ids']) : [];
+
+            $html = '';
+            foreach($results as $key => $value){
+                $html .= "<input type='checkbox' name='category_ids[]' value='{$value['id']}'";
+                $html .= isset(getValues()['category_ids']) && in_array($value['id'], $categoryList) ? ' checked' : null;
+                $html .= ">{$value['name']}";
+            }
+            echo $html;
+        ?>
     </p>
     <p>
         <input type="submit" name="submit">

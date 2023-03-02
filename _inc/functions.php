@@ -35,7 +35,7 @@ Dans la page login.php, appeler la fonction getSessionFlashMessage dans un parag
 function processGameForm()
 {
     if(isSubmitted() && isNewGameValid()){
-        //tester le parametre d'url id
+        processFileGameForm();
         if(isset($_GET['id'])){
             updateGame(getValues());
             $_SESSION['notice'] = 'Jeu vidéo modifié';
@@ -107,12 +107,20 @@ function isNewGameValid():bool
             'message' => 'Date de sortie incorrect',
         ],
         'poster' => [
-            'isValidate' => isNotBlank(getValues()['poster']),
+            'isValidate' => isNotBlank(getFilesValues()['poster']),
             'message' => 'Poster incorrect',
         ],
         'price' => [
             'isValidate' => isFloatInRange(getValues()['price'],0,999.99),
             'message' => 'Prix incorrect',
+        ],
+        'editor_id' => [
+            'isValidate' => isNotBlank(getValues()['editor_id']),
+            'message' => 'Editeur incorrect',
+        ],
+        'category_ids' => [
+            'isValidate' => isNotBlank(getValues()['category_ids']),
+            'message' => 'Category incorrect',
         ],
     ];
 
@@ -124,6 +132,30 @@ function isNewGameValid():bool
     }
 
     return checkConstraints($constraints);
+}
+
+function processFileGameForm()
+{
+    if(getFilesValues()['poster']['error'] === UPLOAD_ERR_OK){
+        uploadFile('img', getFilesValues()['poster']);
+        if(!empty(getValues()['id'])){
+            $data = findOneBy(getValues()['id']);
+            removeFile('img', $data['poster']);
+        }
+    }
+}
+
+function uploadFile(string $directory, array $file)
+{
+    move_uploaded_file(
+        $file['tmp_name'],
+        __DIR__ . "/../$directory/{$file['name']}"
+    );
+}
+
+function removeFile(string $directory, string $filename)
+{
+    unlink(__DIR__ . "/../$directory/$filename");
 }
 
 function isFloatInRange(string $field, float $min, float $max)
@@ -257,10 +289,38 @@ function findAll()
     return $query->fetchAll();
 }
 
+function findAllEditor()
+{
+    $connection = dbConnection();
+    $sql = 'SELECT * FROM editor';
+    $query = $connection->prepare($sql);
+    $query->execute();
+    return $query->fetchAll();
+}
+
+function findAllCategory()
+{
+    $connection = dbConnection();
+    $sql = 'SELECT * FROM category';
+    $query = $connection->prepare($sql);
+    $query->execute();
+    return $query->fetchAll();
+}
+
 function findOneBy(int $id)
 {
     $connection = dbConnection();
-    $sql = 'SELECT * FROM game WHERE game.id = :id';
+
+    $sql = 'select  game.*, group_concat(game_category.category_id) as category_ids
+    from game
+    join category
+    join game_category
+    on game_category.game_id =  game.id
+    and game_category.category_id =  category.id
+    where game.id = :id
+    group by game.id';
+
+    // $sql = 'SELECT * FROM game WHERE game.id = :id';
     $query = $connection->prepare($sql);
     $query->execute([
         'id' => $id,
@@ -301,7 +361,28 @@ function checkAuthentication()
 function insertGame(array $game)
 {
     $connection = dbConnection();
-    $sql = 'INSERT INTO game ( title, description, release_date, poster, price ) VALUES ( :title, :description, :release_date, :poster, :price )';
+    // $sql = 'INSERT INTO game ( title, description, release_date, poster, price, editor_id ) VALUES ( :title, :description, :release_date, :poster, :price, :editor_id )';
+
+    $sql = '
+        start transaction;
+        insert into game ( title, description, release_date, poster, price, editor_id ) VALUES ( :title, :description, :release_date, :poster, :price, :editor_id );
+        set @id = last_insert_id();
+        insert into game_category values'
+    ;
+                    
+    foreach($game['category_ids'] as $key => $value){
+        $sql .= "(@id, $value)";
+        if($value !== end($game['category_ids'])){
+            $sql .= ',';
+        }
+    }
+
+    $sql .= '
+        ;
+        commit;
+    ';
+
+
     $query = $connection->prepare($sql);
     $query->execute([
         'title' => $game['title'],
@@ -309,13 +390,34 @@ function insertGame(array $game)
         'release_date' => $game['release_date'],
         'poster' => $game['poster'],
         'price' => $game['price'],
+        'editor_id' => $game['editor_id'],
     ]);
 }
 
 function updateGame(array $game)
 {
     $connection = dbConnection();
-    $sql = 'UPDATE game SET title = :title, description = :description, release_date = :release_date, poster = :poster, price = :price WHERE id = :id';
+    // $sql = 'UPDATE game SET title = :title, description = :description, release_date = :release_date, poster = :poster, price = :price, editor_id = :editor_id WHERE id = :id';
+
+    $sql = '
+    start transaction;
+    UPDATE game SET title = :title, description = :description, release_date = :release_date, poster = :poster, price = :price, editor_id = :editor_id WHERE id = :id;
+    delete from game_category where game_category.game_id = :id;
+    insert into game_category values'
+    ;
+
+    foreach($game['category_ids'] as $key => $value){
+        $sql .= "(:id, $value)";
+        if($value !== end($game['category_ids'])){
+            $sql .= ',';
+        }
+    }
+
+    $sql .= '
+        ;
+        commit;
+    ';
+
     $query = $connection->prepare($sql);
     $query->execute([
         'id' => $game['id'],
@@ -324,6 +426,7 @@ function updateGame(array $game)
         'release_date' => $game['release_date'],
         'poster' => $game['poster'],
         'price' => $game['price'],
+        'editor_id' => $game['editor_id'],
     ]);
 }
 
@@ -332,7 +435,15 @@ function deleteGame()
     $id = $_GET['id'];
 
     $connection = dbConnection();
-    $sql = 'DELETE FROM game WHERE id = :id';
+    // $sql = 'DELETE FROM game WHERE id = :id';
+
+    $sql = '
+        start transaction;
+        delete from game_category where game_category.game_id = :id;
+        delete from game WHERE game.id = :id;
+        commit;
+    ';
+
     $query = $connection->prepare($sql);
     $query->execute([
         'id' => $id

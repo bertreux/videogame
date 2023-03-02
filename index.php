@@ -18,16 +18,27 @@ require_once '_inc/nav.php';
     <h1>
         Bienvenue a l'accueil
     </h1>
-    <?php
 
-    
-    foreach($results as $row) {
-        echo "Titre: " . $row["title"] . "<br>";
-        echo "Affiche: <img src='/img/{$row['poster']}' alt='' width='100px' height='100px'>" . "<br>";
-        echo "Prix: " . $row["price"] . "<br>";
-        echo "<a href='/game.php?id={$row['id']}'><button>Consulter</button></a><br><br>";
-    }
-    ?>
+<table class="table sortable" style="width:100%">
+        <thead>
+            <tr>
+                <th>Titre</td>
+                <th>Poster</th>
+                <th>Prix</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            foreach($results as $row) {
+                echo "<tr><td>" . $row["title"] . "</td>";
+                echo "<td><img src='/img/{$row['poster']}' alt='' width='100px' height='100px'>" . "</td>";
+                echo "<td>" . $row["price"] . "</td>";
+                echo "<td><a href='/game.php?id={$row['id']}'><button>Consulter</button></a></td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
 </main>
 
 <?php

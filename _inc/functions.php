@@ -1,6 +1,6 @@
 <?php
 
-function processContactForm()
+function processContactForm():void
 {
     if(isSubmitted() && isValid()){
         $_SESSION['notice'] = 'Vous serez contacté dans les plus brefs délais';
@@ -8,7 +8,7 @@ function processContactForm()
     }
 }
 
-function processLoginForm()
+function processLoginForm():void
 {
     if(isSubmitted() && isLoginValid()){
         if(checkUser(getValues()['email'],getValues()['password'])){
@@ -23,16 +23,7 @@ function processLoginForm()
     }
 }
 
-/*
-
-lorsque le formulaire est valide :
-créer une entrée nommée user dans la session stockant l'identifiant de l'administrateur connecté, en utilisant la fonction permettant de vérifier l'existence d'un administrateur à l'aide de son email
-si le formulaire est invalide :
-Dans la page login.php, appeler la fonction getSessionFlashMessage dans un paragraphe de la partie HTML
-
-*/
-
-function processGameForm()
+function processGameForm():void
 {
     if(isSubmitted() && isNewGameValid()){
         processFileGameForm();
@@ -134,7 +125,7 @@ function isNewGameValid():bool
     return checkConstraints($constraints);
 }
 
-function processFileGameForm()
+function processFileGameForm():void
 {
     if(getFilesValues()['poster']['error'] === UPLOAD_ERR_OK){
         generateFileName(getFilesValues()['poster']);
@@ -146,7 +137,7 @@ function processFileGameForm()
     }
 }
 
-function uploadFile(string $directory, array $file)
+function uploadFile(string $directory, array $file):void
 {
     move_uploaded_file(
         $file['tmp_name'],
@@ -154,7 +145,7 @@ function uploadFile(string $directory, array $file)
     );
 }
 
-function removeFile(string $directory, string $filename)
+function removeFile(string $directory, string $filename):void
 {
     unlink(__DIR__ . "/../$directory/$filename");
 }
@@ -191,7 +182,7 @@ function generateFileName(array $file):void
     $GLOBALS['fileName'] = generateRandomToken() . '.' . getAllowedMimeTypes()[getExtensionFromFile($file)];
 }
 
-function isFloatInRange(string $field, float $min, float $max)
+function isFloatInRange(string $field, float $min, float $max):bool
  {
     if(filter_var($field, FILTER_VALIDATE_FLOAT)){
         if($field >= $min && $field <= $max){
@@ -353,7 +344,6 @@ function findOneBy(int $id)
     where game.id = :id
     group by game.id';
 
-    // $sql = 'SELECT * FROM game WHERE game.id = :id';
     $query = $connection->prepare($sql);
     $query->execute([
         'id' => $id,
@@ -394,7 +384,6 @@ function checkAuthentication()
 function insertGame(array $game, array $fileValues)
 {
     $connection = dbConnection();
-    // $sql = 'INSERT INTO game ( title, description, release_date, poster, price, editor_id ) VALUES ( :title, :description, :release_date, :poster, :price, :editor_id )';
 
     $sql = '
         start transaction;
@@ -432,7 +421,6 @@ function updateGame(array $game, array $fileValues)
     $data = findOneBy($game['id']);
 
     $connection = dbConnection();
-    // $sql = 'UPDATE game SET title = :title, description = :description, release_date = :release_date, poster = :poster, price = :price, editor_id = :editor_id WHERE id = :id';
 
     $sql = '
     start transaction;
@@ -473,7 +461,6 @@ function deleteGame()
     removeFile('img', $data['poster']);
 
     $connection = dbConnection();
-    // $sql = 'DELETE FROM game WHERE id = :id';
 
     $sql = '
         start transaction;

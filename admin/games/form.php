@@ -34,7 +34,7 @@ require_once '../_inc/nav.php';
     </p>
     <p>
         <label>Poster :</label>
-        <input type="file" name="poster" <?php empty(getValues()['id']) ? 'required' : null; ?>>
+        <input type="file" name="poster" <?= empty(getValues()['id']) ? ' required' : null; ?>>
     </p>
     <p>
         <label>Prix :</label>

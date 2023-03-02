@@ -13,7 +13,7 @@ require_once '_inc/nav.php';
 <table class="table sortable" style="width:100%">
         <thead>
             <tr>
-                <th>Id</td>   /**todo demandeer affichage et format */
+                <th>Titre</td>
                 <th>Poster</th>
                 <th>Prix</th>
                 <th>actions</th>

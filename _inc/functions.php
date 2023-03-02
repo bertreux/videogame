@@ -436,6 +436,9 @@ function deleteGame()
 {
     $id = $_GET['id'];
 
+    $data = findOneBy($id);
+    removeFile('img', $data['poster']);
+
     $connection = dbConnection();
     // $sql = 'DELETE FROM game WHERE id = :id';
 
@@ -450,9 +453,6 @@ function deleteGame()
     $query->execute([
         'id' => $id
     ]);
-
-    $data = findOneBy($id);
-    removeFile('img', $data['poster']);
 
     $_SESSION['notice'] = 'Jeu vidéo supprimé';
     header('Location: http://localhost:8000/admin/games/');       

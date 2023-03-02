@@ -107,7 +107,7 @@ function isNewGameValid():bool
             'message' => 'Date de sortie incorrect',
         ],
         'poster' => [
-            'isValidate' => isNotBlank(getFilesValues()['poster']),
+            'isValidate' => getFilesValues()['poster']['error'] === UPLOAD_ERR_OK ? isAllowedMimeType(getFilesValues()['poster']) : isNotBlank(getFilesValues()['poster']),
             'message' => 'Poster incorrect',
         ],
         'price' => [
@@ -137,6 +137,7 @@ function isNewGameValid():bool
 function processFileGameForm()
 {
     if(getFilesValues()['poster']['error'] === UPLOAD_ERR_OK){
+        generateFileName(getFilesValues()['poster']);
         uploadFile('img', getFilesValues()['poster']);
         if(!empty(getValues()['id'])){
             $data = findOneBy(getValues()['id']);
@@ -149,13 +150,45 @@ function uploadFile(string $directory, array $file)
 {
     move_uploaded_file(
         $file['tmp_name'],
-        __DIR__ . "/../$directory/{$file['name']}"
+        __DIR__ . "/../$directory/{$GLOBALS['fileName']}"
     );
 }
 
 function removeFile(string $directory, string $filename)
 {
     unlink(__DIR__ . "/../$directory/$filename");
+}
+
+function getExtensionFromFile(array $file):string
+{
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    return $finfo->file($file['tmp_name']);
+}
+
+function getAllowedMimeTypes():array
+{
+    return [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/gif' => 'gif',
+        'image/webp' => 'webp',
+        'image/svg+xml' => 'svg',
+    ];
+}
+
+function isAllowedMimeType(array $file):bool
+{
+    return array_key_exists(getExtensionFromFile($file), getAllowedMimeTypes());
+}
+
+function generateRandomToken(int $length = 32):string
+{
+    return bin2hex(random_bytes($length / 2));
+}
+
+function generateFileName(array $file):void
+{
+    $GLOBALS['fileName'] = generateRandomToken() . '.' . getAllowedMimeTypes()[getExtensionFromFile($file)];
 }
 
 function isFloatInRange(string $field, float $min, float $max)
@@ -388,7 +421,7 @@ function insertGame(array $game, array $fileValues)
         'title' => $game['title'],
         'description' => $game['description'],
         'release_date' => $game['release_date'],
-        'poster' => $fileValues['poster']['name'],
+        'poster' => $GLOBALS['fileName'],
         'price' => $game['price'],
         'editor_id' => $game['editor_id'],
     ]);
@@ -426,7 +459,7 @@ function updateGame(array $game, array $fileValues)
         'title' => $game['title'],
         'description' => $game['description'],
         'release_date' => $game['release_date'],
-        'poster' => $fileValues['poster']['error'] === UPLOAD_ERR_NO_FILE ? $data['poster'] : $fileValues['poster']['name'],
+        'poster' => $fileValues['poster']['error'] === UPLOAD_ERR_NO_FILE ? $data['poster'] : $GLOBALS['fileName'],
         'price' => $game['price'],
         'editor_id' => $game['editor_id'],
     ]);

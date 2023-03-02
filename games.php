@@ -21,12 +21,14 @@ require_once '_inc/nav.php';
         </thead>
         <tbody>
             <?php
+            $html = '';
             foreach($results as $row) {
-                echo "<tr><td>" . $row["title"] . "</td>";
-                echo "<td><img src='/img/{$row['poster']}' alt='' width='100px' height='100px'>" . "</td>";
-                echo "<td>" . $row["price"] . "</td>";
-                echo "<td><a href='/game.php?id={$row['id']}'><button>Consulter</button></a></td></tr>";
+                $html .= "<tr><td>" . $row["title"] . "</td>";
+                $html .= "<td><img src='/img/{$row['poster']}' alt='' width='100px' height='100px'>" . "</td>";
+                $html .= "<td>" . $row["price"] . "</td>";
+                $html .= "<td><a href='/game.php?id={$row['id']}'><button>Consulter</button></a></td></tr>";
             }
+            echo $html;
             ?>
         </tbody>
     </table>

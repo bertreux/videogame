@@ -14,13 +14,13 @@ require_once '_inc/header.php';
 require_once '_inc/nav.php';
 
 $date = (new DateTime($results['release_date']))->format('d/m/Y');
-echo "ID: " . $results["id"] . "<br>";
-echo "Titre: " . $results["title"] . "<br>";
-echo "Description: " . $results["description"] . "<br>";
-// echo "Date de sortie: " . $results["release_date"] . "<br>";
-echo "Date de sortie: " . $date. "<br>";
-echo "Affiche: <img src='/img/{$results['poster']}' alt='' width='100px' height='100px'>" . "<br>";
-echo "Prix: " . $results["price"] . "<br><br>";
+$html = "ID: " . $results["id"] . "<br>";
+$html .= "Titre: " . $results["title"] . "<br>";
+$html .= "Description: " . $results["description"] . "<br>";
+$html .= "Date de sortie: " . $date. "<br>";
+$html .= "Affiche: <img src='/img/{$results['poster']}' alt='' width='100px' height='100px'>" . "<br>";
+$html .= "Prix: " . $results["price"] . "<br><br>";
+echo $html;
 
 ?>
 <?php

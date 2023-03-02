@@ -37,10 +37,10 @@ function processGameForm()
     if(isSubmitted() && isNewGameValid()){
         processFileGameForm();
         if(isset($_GET['id'])){
-            updateGame(getValues());
+            updateGame(getValues(), getFilesValues());
             $_SESSION['notice'] = 'Jeu vidéo modifié';
         }else {
-            insertGame(getValues());
+            insertGame(getValues(), getFilesValues());
             $_SESSION['notice'] = 'Jeu vidéo ajouté';
         }
         header('Location: http://localhost:8000/admin/games/');        
@@ -358,7 +358,7 @@ function checkAuthentication()
     }
 }
 
-function insertGame(array $game)
+function insertGame(array $game, array $fileValues)
 {
     $connection = dbConnection();
     // $sql = 'INSERT INTO game ( title, description, release_date, poster, price, editor_id ) VALUES ( :title, :description, :release_date, :poster, :price, :editor_id )';
@@ -388,14 +388,16 @@ function insertGame(array $game)
         'title' => $game['title'],
         'description' => $game['description'],
         'release_date' => $game['release_date'],
-        'poster' => $game['poster'],
+        'poster' => $fileValues['poster']['name'],
         'price' => $game['price'],
         'editor_id' => $game['editor_id'],
     ]);
 }
 
-function updateGame(array $game)
+function updateGame(array $game, array $fileValues)
 {
+    $data = findOneBy($game['id']);
+
     $connection = dbConnection();
     // $sql = 'UPDATE game SET title = :title, description = :description, release_date = :release_date, poster = :poster, price = :price, editor_id = :editor_id WHERE id = :id';
 
@@ -424,7 +426,7 @@ function updateGame(array $game)
         'title' => $game['title'],
         'description' => $game['description'],
         'release_date' => $game['release_date'],
-        'poster' => $game['poster'],
+        'poster' => $fileValues['poster']['error'] === UPLOAD_ERR_NO_FILE ? $data['poster'] : $fileValues['poster']['name'],
         'price' => $game['price'],
         'editor_id' => $game['editor_id'],
     ]);
@@ -448,6 +450,10 @@ function deleteGame()
     $query->execute([
         'id' => $id
     ]);
+
+    $data = findOneBy($id);
+    removeFile('img', $data['poster']);
+
     $_SESSION['notice'] = 'Jeu vidéo supprimé';
     header('Location: http://localhost:8000/admin/games/');       
 }

@@ -18,7 +18,7 @@ function processLoginForm():void
         } else {
             echo 'utilisateur non authentifié';
         }
-    } else {
+    } else if (isSubmitted()) {
         $_SESSION['notice'] = 'Identifiants incorrects';
     }
 }
